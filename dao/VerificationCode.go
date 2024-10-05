@@ -16,7 +16,7 @@ func CreateVerificationCode(code tables.VerificationCode) error {
 
 func FirstCodeByEmail(email string, code string) (*tables.VerificationCode, error) {
 	var verificationCode tables.VerificationCode
-	err := models.DB.Where("email = ? AND code = ? AND used = ?", email, code, false).
+	err := models.DB.Where("email = ? AND code = ? AND is_used = ?", email, code, false).
 		First(&verificationCode).Error
 	if err != nil {
 		return nil, err

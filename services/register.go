@@ -60,6 +60,20 @@ func Register(ctx *gin.Context) {
 	})
 }
 
+func IsUsernameExist(ctx *gin.Context) {
+	username := ctx.Query("username")
+	exist, err := dao.IsExist(username)
+	if err != nil {
+		fmt.Println("账号校验 系统错误")
+		return
+	}
+	if exist {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "账号已存在"})
+		return
+	}
+	ctx.JSON(http.StatusOK, true)
+}
+
 // 账号加密
 func encryptedPassword(password string) (string, error) {
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)

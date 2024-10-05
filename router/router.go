@@ -23,8 +23,10 @@ func BasicRouter(r *gin.Engine) {
 	noAuth := r.Group(noAuthPath)
 	{
 		noAuth.POST("/register", services.Register)                   //注册
+		noAuth.GET("/verify-username", services.IsUsernameExist)      //判断账号名是否存在
 		noAuth.POST("/login", services.Login)                         //登录
 		noAuth.POST("/sendEmailCode", services.SendVerificationEmail) //发送验证码
+		noAuth.POST("/verify-code", services.VerifyCode)              //验证收到的验证码
 	}
 
 	root := r.Group(rootPath)

@@ -4,16 +4,16 @@ import (
 	"communication_qa_blog_api/dao"
 	"communication_qa_blog_api/models/tables"
 	"crypto/rand"
-	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"gopkg.in/gomail.v2"
 	"math/big"
 	"net/http"
 	"time"
 )
 
 type ECodeReq struct {
-	Email string `json:"email" binding:"required,email"`
+	Email string `json:"email" binding:"required"`
 }
 
 // 生成验证码
@@ -44,31 +44,83 @@ func SendVerificationEmail(ctx *gin.Context) {
 	verificationCode := tables.VerificationCode{
 		Email:     req.Email,
 		Code:      code,
-		ExpiresAt: time.Now().Add(time.Minute * 5),
+		ExpiredAt: time.Now().Add(time.Minute * 5),
 	}
 	err = dao.CreateVerificationCode(verificationCode)
 	if err != nil {
 		return
 	}
+	CodeStr := fmt.Sprintf("您的验证码为：%s,有效时间为3分钟，请尽快输入", code)
+	err = sendEmail(req.Email, "LenPark", CodeStr)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
-	//TODO 发送邮件
+	ctx.JSON(http.StatusOK, "邮件发送成功")
+}
+
+func sendEmail(toEmail, subject, body string) error {
+
+	CodeEmail := gomail.NewMessage()
+	// QQ 邮箱的 SMTP 服务器地址和端口号
+	CodeEmail.SetHeaders(map[string][]string{
+		"From":    {CodeEmail.FormatAddress("911263610@qq.com", "LenPark")},
+		"To":      {toEmail},
+		"Subject": {subject},
+	})
+	CodeEmail.SetBody("text/html", body)
+
+	host := "smtp.qq.com"
+	port := 587
+	userName := "911263610@qq.com"
+	password := "yfyrkkcawhgibchi" // qq邮箱填授权码
+	d := gomail.NewDialer(
+		host,
+		port,
+		userName,
+		password,
+	)
+	// 发送邮件
+	err := d.DialAndSend(CodeEmail)
+	if err != nil {
+		fmt.Println("邮件发送失败 err:", err)
+		return err
+	}
+
+	return nil
+}
+
+type CodeReq struct {
+	Email string `json:"email" binding:"required,email"`
+	Code  string `json:"code" binding:"required"`
 }
 
 // 验证验证码
-func VerifyCode(email, code string) (bool, error) {
-	verificationCode, err := dao.FirstCodeByEmail(email, code)
+func VerifyCode(ctx *gin.Context) {
+	var req CodeReq
+	err := ctx.ShouldBindJSON(&req)
 	if err != nil {
-		return false, err
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
-	if time.Now().After(verificationCode.ExpiresAt) {
-		return false, errors.New("验证码已过期")
+
+	verificationCode, err := dao.FirstCodeByEmail(req.Email, req.Code)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if time.Now().After(verificationCode.ExpiredAt) {
+		ctx.JSON(http.StatusOK, false)
+		return
 	}
 
 	// 验证通过后将验证码标记为已使用
 	verificationCode.IsUsed = true
 	err = dao.SaveCode(verificationCode)
 	if err != nil {
-		return false, err
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
-	return true, nil
+	ctx.JSON(http.StatusOK, true)
 }
