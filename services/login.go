@@ -16,10 +16,8 @@ type LoginReq struct {
 	Password string `json:"password" binding:"required"`
 }
 type LoginRsp struct {
-	Nickname string `json:"nickname"`
-	Username string `json:"username"`
-	Token    string `json:"token"`
-	Message  string `json:"message"`
+	Token   string
+	Message string
 }
 
 func Login(ctx *gin.Context) {
@@ -51,14 +49,9 @@ func Login(ctx *gin.Context) {
 	}
 
 	//登录结果返回
-	ctx.JSON(http.StatusOK, gin.H{
-		"message": "登录成功",
-		"data": &LoginRsp{
-			Nickname: user.Nickname,
-			Username: user.Username,
-			Token:    token,
-			Message:  "success",
-		},
+	ctx.JSON(http.StatusOK, &LoginRsp{
+		Token:   token,
+		Message: "登录成功",
 	})
 }
 

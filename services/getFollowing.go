@@ -31,11 +31,7 @@ func GetFollowing(ctx *gin.Context) {
 			return
 		}
 	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"data": &FollowingResp{
-			UserItem: userItems,
-		},
-	})
+	ctx.JSON(http.StatusOK, userItems)
 }
 
 // 获取粉丝列表
@@ -62,9 +58,5 @@ func GetFollowers(ctx *gin.Context) {
 			return
 		}
 	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"info": &FollowerResp{
-			UserItem: userItems,
-		},
-	})
+	ctx.JSON(http.StatusOK, userItems)
 }

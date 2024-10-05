@@ -2,53 +2,80 @@ package services
 
 import (
 	"communication_qa_blog_api/dao"
-	"communication_qa_blog_api/models"
 	"communication_qa_blog_api/models/tables"
 	"communication_qa_blog_api/models/views"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-func SearchUsersByNickname(c *gin.Context) {
-	var users *[]views.UserItem
-	nickname := c.Query("nickname") // 获取昵称的查询参数
+func SearchUsersByNickname(ctx *gin.Context) {
+	var users []views.UserItem
+	nickname := ctx.Query("nickname") // 获取昵称的查询参数
 
 	if nickname == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Nickname query parameter is required"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "nickname query parameter is required"})
 		return
 	}
 
 	// 查询昵称中包含关键字的用户
 	users, err := dao.FindUsersByNickname(nickname)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, users)
+	ctx.JSON(http.StatusOK, users)
 }
 
-func SearchPostsByTitleOrTag(ctx *gin.Context) {
-	var posts []tables.Post
-	title := ctx.Query("title") // 获取标题的查询参数
-	tag := ctx.Query("tag")     // 获取标签的查询参数
+func SearchUsersByUsername(ctx *gin.Context) {
+	var user *tables.User
+	username := ctx.GetString("username") // 获取昵称的查询参数
 
-	query := models.DB.Model(&tables.Post{})
-
-	// 如果有 title 查询参数，根据 title 搜索
-	if title != "" {
-		query = query.Where("title LIKE ?", "%"+title+"%")
-	}
-
-	// 如果有 tag 查询参数，根据 tag 搜索
-	if tag != "" {
-		query = query.Where("tags LIKE ?", "%"+tag+"%")
-	}
-
-	if err := query.Find(&posts).Error; err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "No posts found"})
+	if username == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "username query parameter is required"})
 		return
 	}
 
+	// 查询昵称中包含关键字的用户
+	user, err := dao.FirstByUsername(username)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, user)
+}
+
+func SearchPostsByTitle(ctx *gin.Context) {
+	var posts []views.PostDetail
+	title := ctx.Query("title") // 获取标题的查询参数
+	if title == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "title query parameter is required"})
+		return
+	}
+	posts = dao.FindPostDetailByTitle(title)
+
+	ctx.JSON(http.StatusOK, posts)
+}
+
+func SearchPostsByTag(ctx *gin.Context) {
+	var posts []views.PostDetail
+	tagName := ctx.Query("tag_name")
+	if tagName == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "tag query parameter is required"})
+		return
+	}
+	posts = dao.FindPostDetailByTag(tagName)
+	ctx.JSON(http.StatusOK, posts)
+}
+
+func SearchPostsByUsername(ctx *gin.Context) {
+	var posts []views.PostDetail
+	username := ctx.Query("username")
+	if username == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "tag query parameter is required"})
+		return
+	}
+	posts = dao.FindPostDetailByUsername(username)
 	ctx.JSON(http.StatusOK, posts)
 }

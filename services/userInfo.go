@@ -13,7 +13,6 @@ import (
 )
 
 //TODO 修改个人信息
-//TODO 发布删除修改帖子
 //TODO 搜索用户，搜索帖子
 
 // UpdateAvatar 上传头像
@@ -86,8 +85,7 @@ func UpdateAvatar(ctx *gin.Context) {
 
 // 查看自己的收藏
 func ShowFavorite(ctx *gin.Context) {
-	user, _ := ctx.Get("username")
-	username := user.(string)
+	username := ctx.GetString("username")
 	postList, err := dao.GetFavoritePostList(username)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get post list"})
@@ -99,8 +97,7 @@ func ShowFavorite(ctx *gin.Context) {
 
 // 查看自己的浏览历史
 func ShowView(ctx *gin.Context) {
-	user, _ := ctx.Get("username")
-	username := user.(string)
+	username := ctx.GetString("username")
 	postList, err := dao.GetViewPostList(username)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get post list"})

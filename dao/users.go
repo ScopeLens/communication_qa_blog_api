@@ -59,10 +59,10 @@ func UpdateAvatarUrl(username string, avatarURL string) error {
 	return nil
 }
 
-func FindUsersByNickname(keyword string) (*[]views.UserItem, error) {
+func FindUsersByNickname(keyword string) ([]views.UserItem, error) {
 	var userItems []views.UserItem
 	if err := models.DB.Model(&tables.User{}).Where("nickname LIKE ?", "%"+keyword+"%").Find(&userItems).Error; err != nil {
 		return nil, err
 	}
-	return &userItems, nil
+	return userItems, nil
 }

@@ -3,6 +3,7 @@ package dao
 import (
 	"communication_qa_blog_api/models"
 	"communication_qa_blog_api/models/tables"
+	"communication_qa_blog_api/models/views"
 	"errors"
 	"gorm.io/gorm"
 )
@@ -44,11 +45,15 @@ func DeleteFavorite(username string, PostID uint) error {
 	return nil
 }
 
-// 获得PostID切片
-func GetFavoritePostList(username string) ([]tables.Post, error) {
-	var posts []tables.Post
-	err := models.DB.Joins("JOIN favorites ON favorites.post_id = posts.id").
+// 查看收藏帖子
+func GetFavoritePostList(username string) ([]views.PostDetail, error) {
+	var posts []views.PostDetail
+	models.DB.Model(&tables.Post{}).
+		Select("posts.*, users.nickname").
+		Joins("JOIN users ON posts.username = users.username").
+		Joins("JOIN favorites ON posts.post_id = favorites.post_id").
 		Where("favorites.username = ?", username).
-		Find(&posts).Error
-	return posts, err
+		Order("posts.updated_at DESC").
+		Scan(&posts)
+	return posts, nil
 }
