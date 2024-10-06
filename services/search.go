@@ -50,11 +50,10 @@ func SearchPostsByTitle(ctx *gin.Context) {
 	var posts []views.PostDetail
 	title := ctx.Query("title") // 获取标题的查询参数
 	if title == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "title query parameter is required"})
-		return
+		posts = dao.FindPostDetailSortByView()
+	} else {
+		posts = dao.FindPostDetailByTitle(title)
 	}
-	posts = dao.FindPostDetailByTitle(title)
-
 	ctx.JSON(http.StatusOK, posts)
 }
 
