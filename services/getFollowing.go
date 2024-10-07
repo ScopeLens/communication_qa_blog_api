@@ -8,18 +8,11 @@ import (
 )
 
 // 获取关注列表
-type FollowingReq struct {
-	Username string `json:"username"`
-}
-type FollowingResp struct {
-	UserItem []views.UserItem
-}
-
 func GetFollowing(ctx *gin.Context) {
-	var req FollowingReq
+	username := ctx.GetString("username")
 	var userItems []views.UserItem
 
-	followees, err := dao.PluckFolloweeByUsername(req.Username)
+	followees, err := dao.PluckFolloweeByUsername(username)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -35,22 +28,16 @@ func GetFollowing(ctx *gin.Context) {
 }
 
 // 获取粉丝列表
-type FollowerReq struct {
-	Username string `json:"username"`
-}
-type FollowerResp struct {
-	UserItem []views.UserItem
-}
-
 func GetFollowers(ctx *gin.Context) {
-	var req FollowerReq
+	username := ctx.GetString("username")
 	var userItems []views.UserItem
 
-	followers, err := dao.PluckFollowerByUsername(req.Username)
+	followers, err := dao.PluckFollowerByUsername(username)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	if len(followers) != 0 {
 		userItems, err = dao.SelectUserItem(followers)
 		if err != nil {

@@ -9,8 +9,8 @@ import (
 
 // 关注
 type FUReq struct {
-	Follower string `json:"Follower" binding:"required"`
-	Followee string `json:"Followee" binding:"required"`
+	Follower string `json:"follower" binding:"required"`
+	Followee string `json:"followee" binding:"required"`
 }
 type FURsp struct {
 	Message string `json:"message"`
@@ -42,8 +42,8 @@ func FollowUser(ctx *gin.Context) {
 
 // 取关
 type UFUReq struct {
-	Follower string `json:"Follower" binding:"required"`
-	Followee string `json:"Followee" binding:"required"`
+	Follower string `json:"follower" binding:"required"`
+	Followee string `json:"followee" binding:"required"`
 }
 type UFURsp struct {
 	Message string `json:"message"`
