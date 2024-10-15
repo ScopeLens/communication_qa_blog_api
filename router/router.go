@@ -19,6 +19,7 @@ func BasicRouter(r *gin.Engine) {
 		filename := c.Param("filename")
 		c.File("/uploadFiles/postImg/" + folder + "/" + filename) // 动态返回 ./images 文件夹下的图片
 	})
+	r.POST("/getComponent", services.CreateComp)
 
 	noAuth := r.Group(noAuthPath)
 	{
@@ -72,6 +73,11 @@ func BasicRouter(r *gin.Engine) {
 			search.GET("/post-title", services.SearchPostsByTitle)       //搜索帖子 ByTitle
 			search.GET("/post-tag", services.SearchPostsByTag)           //搜索帖子 ByTag
 			search.GET("/post-username", services.SearchPostsByUsername) //搜索帖子 ByTag
+		}
+
+		authority := root.Group("/authority")
+		{
+			authority.GET("/limit", services.GetPower)
 		}
 	}
 }

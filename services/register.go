@@ -44,10 +44,11 @@ func Register(ctx *gin.Context) {
 
 	// 账号信息持久化
 	user := tables.User{
-		Username: req.Username,
-		Nickname: req.Nickname,
-		Email:    req.Email,
-		Password: hashPassword,
+		Username:  req.Username,
+		Nickname:  req.Nickname,
+		Email:     req.Email,
+		Password:  hashPassword,
+		AvatarURL: "/uploadFiles/avatars/default.jpg",
 	}
 	err = dao.CreateUser(user)
 	if err != nil {

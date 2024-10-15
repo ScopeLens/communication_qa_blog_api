@@ -50,3 +50,11 @@ func FindCommentsByPostID(postID uint) ([]views.CommentItem, error) {
 	}
 	return comments, nil
 }
+
+func FindCommentsByUsername(username string) ([]tables.Comment, error) {
+	var comments []tables.Comment
+	if err := models.DB.Table("comments").Where("username = ?", username).Find(&comments).Error; err != nil {
+		return nil, err
+	}
+	return comments, nil
+}

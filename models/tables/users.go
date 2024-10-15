@@ -9,6 +9,8 @@ type User struct {
 	Password       string    `gorm:"not null" json:"password"`
 	FollowersCount int       `gorm:"default:0" json:"followers_count"` // 粉丝数
 	FollowingCount int       `gorm:"default:0" json:"following_count"` // 关注数
+	Identity       int       `gorm:"default:0" json:"identity"`        //身份
+	Blocked        bool      `gorm:"default:false" json:"blocked"`     //是否被封禁
 	AvatarURL      string    `json:"avatar_url"`                       // 头像 URL
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`

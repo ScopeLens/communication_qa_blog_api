@@ -2,6 +2,7 @@ package main
 
 import (
 	"communication_qa_blog_api/models"
+	"communication_qa_blog_api/models/tables"
 	api "communication_qa_blog_api/router"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -15,7 +16,28 @@ func main() {
 	api.BasicRouter(r)
 	DBInit()
 
-	err := r.Run(":105")
+	err := models.DB.AutoMigrate(&tables.Component{})
+	if err != nil {
+		return
+	}
+
+	//component := tables.Component{
+	//	Name:        "组件1",
+	//	Description: "组件一的描述",
+	//	Dimensions:  json.RawMessage("[1,2]"),
+	//}
+	//err = tables.CreateComponent(component)
+	//if err != nil {
+	//	return
+	//}
+	//
+	//firstComponent, err := tables.FirstComponent(1)
+	//if err != nil {
+	//	return
+	//}
+	//fmt.Println(firstComponent)
+
+	err = r.Run(":105")
 	if err != nil {
 		fmt.Println(err)
 		return

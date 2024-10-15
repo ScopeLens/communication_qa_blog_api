@@ -24,6 +24,30 @@ func IsExist(username string) (bool, error) {
 	return true, nil
 }
 
+func IsBlocked(username string) (bool, error) {
+	var user tables.User
+	err := models.DB.Where("username = ?", username).First(&user).Error
+	if err != nil {
+		fmt.Printf("Account.IsBlocked err:%v\n", err)
+	}
+	if user.Blocked {
+		return true, nil
+	}
+	return false, nil
+}
+
+func IsPower(username string) (bool, error) {
+	var user tables.User
+	err := models.DB.Where("username = ?", username).First(&user).Error
+	if err != nil {
+		fmt.Printf("Account.IsPower err:%v\n", err)
+	}
+	if user.Identity == 1 {
+		return true, nil
+	}
+	return false, nil
+}
+
 func CreateUser(user tables.User) error {
 	if err := models.DB.Model(tables.User{}).Create(&user).Error; err != nil {
 		fmt.Printf("AccountDao.Create err:%v\n", err)
